@@ -35,6 +35,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/clef/internal/ethapi"
+	"github.com/ethereum/clef/signer/core"
+	"github.com/ethereum/clef/signer/core/apitypes"
+	"github.com/ethereum/clef/signer/fourbyte"
+	"github.com/ethereum/clef/signer/rules"
+	"github.com/ethereum/clef/signer/storage"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/cmd/utils"
@@ -42,18 +48,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/internal/ethapi"
-	"github.com/ethereum/go-ethereum/internal/flags"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/ethereum/go-ethereum/signer/core"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/ethereum/go-ethereum/signer/fourbyte"
-	"github.com/ethereum/go-ethereum/signer/rules"
-	"github.com/ethereum/go-ethereum/signer/storage"
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
 	"github.com/urfave/cli/v2"
@@ -103,10 +102,9 @@ var (
 		Usage: "Chain id to use for signing (1=mainnet, 17000=Holesky)",
 	}
 	rpcPortFlag = &cli.IntFlag{
-		Name:     "http.port",
-		Usage:    "HTTP-RPC server listening port",
-		Value:    node.DefaultHTTPPort + 5,
-		Category: flags.APICategory,
+		Name:  "http.port",
+		Usage: "HTTP-RPC server listening port",
+		Value: node.DefaultHTTPPort + 5,
 	}
 	signerSecretFlag = &cli.StringFlag{
 		Name:  "signersecret",
@@ -259,7 +257,7 @@ The account is saved in encrypted format, you are prompted for a password.
 `}
 )
 
-var app = flags.NewApp("Manage Ethereum account operations")
+var app = NewApp("Manage Ethereum account operations")
 
 func init() {
 	app.Name = "Clef"
@@ -799,7 +797,7 @@ func signer(c *cli.Context) error {
 // persistence requirements.
 func DefaultConfigDir() string {
 	// Try to place the data folder in the user's home dir
-	home := flags.HomeDir()
+	home := HomeDir()
 	if home != "" {
 		if runtime.GOOS == "darwin" {
 			return filepath.Join(home, "Library", "Signer")
